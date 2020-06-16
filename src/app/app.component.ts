@@ -3,6 +3,8 @@ import {HttpClient} from '@angular/common/http';
 import {pipe} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Post} from './post.model';
+import {PostsService} from "./posts.service";
+import {Title} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-root',
@@ -12,45 +14,23 @@ import {Post} from './post.model';
 export class AppComponent implements OnInit {
   loadedPosts: Post[] = [];
   isFetching = false;
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private postService: PostsService) {
   }
 
   ngOnInit() {
-    this.fetchPosts();
+    this.postService.fetchPosts();
   }
 
   onCreatePost(postData: { title: string; content: string }) {
-    // Send Http Request
-    this.http.post<{ name: string }>(
-      'https://ng-complete-guide-4b9d4.firebaseio.com/posts.json',
-      postData).subscribe(responseData => {
-      console.log(responseData);
-    });
+    this.postService.createAndStorePost(postData.title, postData.content);
   }
 
   onFetchPosts() {
-    this.fetchPosts();
+    this.postService.fetchPosts();
   }
 
   onClearPosts() {
     // Send Http request
   }
 
-  private fetchPosts() {
-    this.isFetching = true;
-    this.http.get<{ [key: string]: Post }>('https://ng-complete-guide-4b9d4.firebaseio.com/posts.json')
-      .pipe(map(responseData => {
-        const postsArray: Post[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            postsArray.push({...responseData[key], id: key});
-          }
-        }
-        return postsArray;
-      }))
-      .subscribe(posts => {
-        this.isFetching = false;
-        this.loadedPosts = posts;
-      });
-  }
 }
