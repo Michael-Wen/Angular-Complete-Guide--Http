@@ -5,7 +5,7 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 
 import {AppComponent} from './app.component';
 import {AuthInterceptorService} from './auth-interceptor.service';
-import {LoggingInterceptorService} from "./logging-interceptor.service";
+import {LoggingInterceptorService} from './logging-interceptor.service';
 
 @NgModule({
   declarations: [AppComponent],

@@ -3,8 +3,8 @@ import {HttpClient} from '@angular/common/http';
 import {pipe, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Post} from './post.model';
-import {PostsService} from "./posts.service";
-import {Title} from "@angular/platform-browser";
+import {PostsService} from './posts.service';
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
