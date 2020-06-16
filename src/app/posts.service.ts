@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpEventType, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Post} from './post.model';
-import {catchError, map} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 import {Subject, throwError} from 'rxjs';
 
 @Injectable({
@@ -11,17 +11,23 @@ export class PostsService {
 
   error = new Subject<string>();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
 
   createAndStorePost(title: string, content: string) {
-    const postData: Post = { title: title, content: content };
+    const postData: Post = {title: title, content: content};
     this.http.post<{ name: string }>(
       'https://ng-complete-guide-4b9d4.firebaseio.com/posts.json',
-      postData).subscribe(responseData => {
-      console.log(responseData);
-    }, error => {
+      postData,
+      {
+        observe: 'response'
+      }
+    )
+      .subscribe(responseData => {
+        console.log(responseData);
+      }, error => {
         this.error.next(error.message);
-    });
+      });
   }
 
   fetchPosts() {
@@ -31,10 +37,10 @@ export class PostsService {
     return this.http.get<{ [key: string]: Post }>(
       'https://ng-complete-guide-4b9d4.firebaseio.com/posts.json',
       {
-        headers: new HttpHeaders({'Custom-Header': 'Hello' }),
+        headers: new HttpHeaders({'Custom-Header': 'Hello'}),
         params: searchParams
       }
-      )
+    )
       .pipe(map(responseData => {
         const postsArray: Post[] = [];
         for (const key in responseData) {
@@ -50,6 +56,18 @@ export class PostsService {
   }
 
   deletePosts() {
-    return this.http.delete('https://ng-complete-guide-4b9d4.firebaseio.com/posts.json');
+    return this.http.delete('https://ng-complete-guide-4b9d4.firebaseio.com/posts.json', {
+      observe: 'events'
+    }).pipe(
+      tap(event => {
+        console.log(event);
+        if (event.type === HttpEventType.Sent) {
+          // ...
+        }
+        if (event.type === HttpEventType.Response) {
+          console.log(event.body);
+        }
+      })
+    );
   }
 }
